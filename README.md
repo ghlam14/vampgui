@@ -3,6 +3,8 @@
 **VAMPgui** is a graphical user interface written in Python 3 using the `tkinter` library. It is designed to simplify the use of the VAMPIRE
 atomistic spin dynamics code [VAMPIRE - Atomistic Spin Dynamics](https://vampire.york.ac.uk/). The GUI has been tested on Linux systems including **Ubuntu 20.04** and **Ubuntu 24.04**.
 
+ ![image](https://github.com/user-attachments/assets/aed9a5ad-e365-40c0-9c17-a5e741b8aa2b)
+
 
 ## 📦 Installation
 
@@ -21,14 +23,23 @@ To launch the graphical interface, open a terminal in your working directory and
 
 
 ## 🛠 Features
-**Prepare input files for VAMPIRE simulations.**
+        -Prepare input files for VAMPIRE simulations.
 
-**Run the VAMPIRE code directly from the GUI.**
+        -Run the VAMPIRE code directly from the GUI.
 
-**Plot results from simulation output.**
+        -Plot results from simulation output.
+
+        - visualization 
+
+
+![image](https://github.com/user-attachments/assets/3466db92-f74f-4c6a-8f2f-169d784dd4c8)
+
 
 ## Experimental feature: 
 **Convert CIF files to .ufc format using pymatgen (under testing and improvement).**
+
+![image](https://github.com/user-attachments/assets/4d818347-63cc-49e1-9ec5-c92c2d8ca328)
+
 
 ## 🐞 Feedback & Contact
 If you find any bugs or have suggestions, please send your feedback via email:
