@@ -11,18 +11,17 @@ atomistic spin dynamics code. The GUI has been tested on Linux systems including
 
 ### Using `pip` (recommended for most users)
 
-```bash
-pip3 install vampgui
+        pip3 install vampgui
 
-Using pipx (recommended on Ubuntu 24.04)
+### Using pipx (recommended on Ubuntu 24.04)
 
-pipx install vampgui
+        pipx install vampgui
 
-🚀 Running the GUI
+#### 🚀 Running the GUI
 To launch the graphical interface, open a terminal in your working directory and run:
 
 
-vampgui
+        vampgui
 
 
 🛠 Features
