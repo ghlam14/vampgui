@@ -169,7 +169,7 @@ class VampireInputApp:
         btn_material_file = tk.Button(canvas, text="Material File", width=20, command=lambda: self.notebook.select(self.tab3))
         canvas.create_window(250, 350, window=btn_material_file)  # Position the button
 
-        btn_input_file = tk.Button(canvas,    text=" Main Input File", width=20, command=lambda: self.notebook.select(self.tab4))
+        btn_input_file = tk.Button(canvas,    text="Input File", width=20, command=lambda: self.notebook.select(self.tab4))
         canvas.create_window(250, 400, window=btn_input_file)  # Position the button
         btn_input_file = tk.Button(canvas,    text="Run vampire", width=20, command=lambda: self.notebook.select(self.tab5))
         canvas.create_window(250, 450, window=btn_input_file)  # Position the button
