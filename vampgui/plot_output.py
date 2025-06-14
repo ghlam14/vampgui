@@ -64,33 +64,187 @@ class Plotmain:
         config_frame = tk.Label(self.main_frame)
         config_frame.pack(fill=tk.X, padx=5, pady=5)
         tk.Label(config_frame,text="Plot Configuration",font=("Helvetica", 14, "bold")).grid(row=0, column=0, sticky='w')
+        row=0
+        col =1
 
-        self.create_axis_controls(config_frame, "X",0, 1)
-        self.create_axis_controls(config_frame, "Y",1, 1)
+        self.create_axis_controls(config_frame, "X",row, col)
 
-        tk.Label(config_frame, text="Plot Title:",font=("Helvetica", 11, "bold")).grid(row=2, column=1,sticky='e', padx=5, pady=2)
-        self.plot_title = tk.Entry(config_frame, width=30)
-        self.plot_title.grid(row=2, column=2, sticky='e', padx=5, pady=2)
+        # Axis limits controls
+        tk.Label(config_frame, text="X-axis Limits:", font=("Helvetica", 12, "bold")).grid(row=row, column=6, padx=5, pady=5, sticky="e")
+        self.xmin_entry = tk.Entry(config_frame, width=8)
+        self.xmin_entry.grid(row=row, column=7, padx=2, pady=5, sticky="w")
+
+        tk.Label(config_frame, text="to").grid(row=row, column=8, padx=0, pady=5)
+
+        self.xmax_entry = tk.Entry(config_frame, width=8)
+        self.xmax_entry.grid(row=row, column=9, padx=5, pady=5, sticky="w")
+
+        tk.Label(config_frame, text="Plot Title:",font=("Helvetica", 11, "bold")).grid(row=row, column=10,sticky='e', padx=5, pady=2)
+        self.plot_title = tk.Entry(config_frame, width=25)
+        self.plot_title.grid(row=row, column=11, sticky='e', padx=5, pady=2)
+
+
+        row +=1
+        self.create_axis_controls(config_frame, "Y",row, col)
+
+        tk.Label(config_frame, text="Y-axis Limits:",
+                font=("Helvetica", 12, "bold")).grid(row=row, column=6, padx=5, pady=5, sticky="e")
+
+        self.ymin_entry = tk.Entry(config_frame, width=8)
+        self.ymin_entry.grid(row=row, column=7, padx=2, pady=5, sticky="e")
+        tk.Label(config_frame, text="to").grid(row=row, column=8, padx=0, pady=5)
+        self.ymax_entry = tk.Entry(config_frame, width=8)
+        self.ymax_entry.grid(row=row, column=9, padx=5, pady=5, sticky="e")
+
+
+
+
+        #row +=1
+        line_styles = [
+        ('Solid blue line', 'b-'),
+        ('Dashed blue line', 'b--'),
+        ('Dotted blue line', 'b:'),
+        ('Dash-dot blue line', 'b-.'),
+        ('Blue line with points', 'b.-'),
+        ('Blue line with circles', 'bo-'),
+        ('Blue line with squares', 'bs-'),
+        ('Blue line with triangles', 'b^-'),
+        ('Solid red line', 'r-'),
+        ('Solid green line', 'g-')
+        ]
+
+        self.line_style_var = tk.StringVar(value='Dash-dot blue line')  # Default style
+        tk.Label(config_frame, text="Line Style:",
+                font=("Helvetica", 12, "bold")).grid(row=row, column=10, padx=5, pady=5, sticky="e")
+
+        self.line_style_menu = ttk.Combobox(config_frame,
+                                        textvariable=self.line_style_var,
+                                        values=[desc for desc, code in line_styles],
+                                        state="readonly",
+                                        width=20)
+        self.line_style_menu.grid(row=row, column=11, padx=5, pady=5, sticky="w")
+        self.line_style_map = {desc: code for desc, code in line_styles}
+
+        row +=1
+
+        # Auto-scale checkbox
+        self.auto_scale_var = tk.BooleanVar(value=True)
+        self.auto_scale_check = tk.Checkbutton(config_frame, text="Auto-scale axes",
+                                            variable=self.auto_scale_var,
+                                            command=self.toggle_axis_limits)
+
+        self.auto_scale_check.grid(row=row, column=1, padx=5, pady=5, sticky="w")
 
         btn_frame = tk.Frame(config_frame)
-        btn_frame.grid(row=2, column=4,  sticky='e', pady=10)
+        btn_frame.grid(row=row, column=2, columnspan=5,  sticky='e', pady=10)
         tk.Button(btn_frame, text="Generate Plot",font=("Helvetica", 11, "bold"), bg="lightblue", command=self.generate_plot).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text="Save Plot", bg="lightgreen", command=self.save_plot).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text="Clear", bg="lightgray",font=("Helvetica", 11, "bold"), command=self.reset_ui).pack(side=tk.LEFT)
-
-
-
+        self.toggle_axis_limits()
+        self.line_style_var.trace_add('write', self.update_line_style)
 
     def create_axis_controls(self, parent, axis,row, col):
         tk.Label(parent, text=f"{axis}-Axis Column:",font=("Helvetica", 11, "bold")).grid(row=row, column=col, sticky='e', padx=5, pady=2)
-        combo = ttk.Combobox(parent, width=30, state='readonly')
+        combo = ttk.Combobox(parent, width=15, state='readonly')
         combo.grid(row=row, column=col+1, sticky='w', padx=5, pady=2)
         setattr(self, f"{axis.lower()}_col", combo)
-
         tk.Label(parent, text=f"{axis}-Axis Label:").grid(row=row, column=col+2, sticky='e', padx=5, pady=2)
-        entry = tk.Entry(parent, width=30)
+        entry = tk.Entry(parent, width=20)
         entry.grid(row=row, column=col+3, sticky='w', padx=5, pady=2)
         setattr(self, f"{axis.lower()}_label", entry)
+
+        #return col
+
+
+    def toggle_axis_limits(self):
+        """Enable/disable axis limit entries based on auto-scale checkbox"""
+        state = 'disabled' if self.auto_scale_var.get() else 'normal'
+        self.xmin_entry.config(state=state)
+        self.xmax_entry.config(state=state)
+        self.ymin_entry.config(state=state)
+        self.ymax_entry.config(state=state)
+
+    def generate_plot(self):
+        """Generate the plot with selected line style and axis limits"""
+        if self.data is None or self.data.size == 0:
+            tk.messagebox.showwarning("Data Error", "No data available for plotting")
+            return
+
+        try:
+            x_idx = int(self.x_col.get().split()[1]) - 1
+            y_idx = int(self.y_col.get().split()[1]) - 1
+
+            if not (0 <= x_idx < self.data.shape[1] and 0 <= y_idx < self.data.shape[1]):
+                raise ValueError("Invalid column selection")
+
+            if self.figure: plt.close(self.figure)
+            if self.canvas: self.canvas.get_tk_widget().destroy()
+
+            self.figure = plt.Figure(figsize=(8, 8), dpi=100)
+            ax = self.figure.add_subplot(111)
+
+            # Use the selected line style
+            line_style = getattr(self, 'current_line_style', 'b.-')
+            ax.plot(self.data[:, x_idx], self.data[:, y_idx], line_style, linewidth=1.5)
+
+            # Set axis limits if specified
+            if not self.auto_scale_var.get():
+                try:
+                    xmin = float(self.xmin_entry.get()) if self.xmin_entry.get() else None
+                    xmax = float(self.xmax_entry.get()) if self.xmax_entry.get() else None
+                    ymin = float(self.ymin_entry.get()) if self.ymin_entry.get() else None
+                    ymax = float(self.ymax_entry.get()) if self.ymax_entry.get() else None
+
+                    if xmin is not None and xmax is not None:
+                        ax.set_xlim(xmin, xmax)
+                    if ymin is not None and ymax is not None:
+                        ax.set_ylim(ymin, ymax)
+                except ValueError:
+                    tk.messagebox.showwarning("Invalid Input", "Please enter valid numbers for axis limits")
+
+            ax.set_xlabel(self.x_label.get() or f"Column {x_idx+1}")
+            ax.set_ylabel(self.y_label.get() or f"Column {y_idx+1}")
+            ax.set_title(self.plot_title.get() or "Vampire Data Plot")
+            ax.grid(True, linestyle='--', alpha=0.4)
+
+            self.canvas = FigureCanvasTkAgg(self.figure, self.plot_container)
+            self.canvas.draw()
+            self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+        except Exception as e:
+            tk.messagebox.showerror("Plot Error", f"Failed to generate plot:\n{str(e)}")
+
+
+    def reset_ui(self):
+        self.data = None
+        if self.figure: plt.close(self.figure)
+        if self.canvas: self.canvas.get_tk_widget().destroy()
+
+        self.file_path.delete(0, tk.END)
+        self.preview_text.delete(1.0, tk.END)
+        self.x_col.set('')
+        self.y_col.set('')
+        self.x_label.delete(0, tk.END)
+        self.y_label.delete(0, tk.END)
+        self.plot_title.delete(0, tk.END)
+
+        empty_label = tk.Label(self.plot_container, text="Plot will appear here", fg="gray")
+        empty_label.pack(fill=tk.BOTH, expand=True)
+
+        self.auto_scale_var.set(True)
+        self.toggle_axis_limits()
+        self.xmin_entry.delete(0, tk.END)
+        self.xmax_entry.delete(0, tk.END)
+        self.ymin_entry.delete(0, tk.END)
+        self.ymax_entry.delete(0, tk.END)
+
+
+    def update_line_style(self, *args):
+        """Update the line style code when dropdown selection changes"""
+        selected_desc = self.line_style_var.get()
+        self.current_line_style = self.line_style_map.get(selected_desc, 'b.-')
+
+
 
     def setup_preview_section(self):
         preview_frame = tk.Label(self.main_frame, text="Data Preview", font=("Helvetica", 12, "bold"))
@@ -176,56 +330,5 @@ class Plotmain:
         except Exception as e:
             tk.messagebox.showerror("Save Error", f"Failed to save plot:\n{str(e)}")
 
-    def generate_plot(self):
-        if self.data is None or self.data.size == 0:
-            tk.messagebox.showwarning("Data Error", "No data available for plotting")
-            return
 
-        try:
-            x_idx = int(self.x_col.get().split()[1]) - 1
-            y_idx = int(self.y_col.get().split()[1]) - 1
 
-            if not (0 <= x_idx < self.data.shape[1] and 0 <= y_idx < self.data.shape[1]):
-                raise ValueError("Invalid column selection")
-
-            if self.figure: plt.close(self.figure)
-            if self.canvas: self.canvas.get_tk_widget().destroy()
-
-            self.figure = plt.Figure(figsize=(8, 8), dpi=100)
-            ax = self.figure.add_subplot(111)
-
-            ax.plot(self.data[:, x_idx], self.data[:, y_idx], 'b-', linewidth=1.5)
-            ax.set_xlabel(self.x_label.get() or f"Column {x_idx+1}")
-            ax.set_ylabel(self.y_label.get() or f"Column {y_idx+1}")
-            ax.set_title(self.plot_title.get() or "Vampire Data Plot")
-            ax.grid(True, linestyle='--', alpha=0.4)
-
-            self.canvas = FigureCanvasTkAgg(self.figure, self.plot_container)
-            self.canvas.draw()
-            self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-
-        except Exception as e:
-            tk.messagebox.showerror("Plot Error", f"Failed to generate plot:\n{str(e)}")
-
-    def reset_ui(self):
-        self.data = None
-        if self.figure: plt.close(self.figure)
-        if self.canvas: self.canvas.get_tk_widget().destroy()
-
-        self.file_path.delete(0, tk.END)
-        self.preview_text.delete(1.0, tk.END)
-        self.x_col.set('')
-        self.y_col.set('')
-        self.x_label.delete(0, tk.END)
-        self.y_label.delete(0, tk.END)
-        self.plot_title.delete(0, tk.END)
-
-        empty_label = tk.Label(self.plot_container, text="Plot will appear here", fg="gray")
-        empty_label.pack(fill=tk.BOTH, expand=True)
-
-# if __name__ == "__main__":
-#     root = tk.Tk()
-#     root.title("Vampire Data Plotter")
-#     root.geometry("900x700")
-#     app = Plotmain(root)
-#     root.mainloop()
