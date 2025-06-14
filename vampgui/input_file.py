@@ -523,9 +523,9 @@ class InputTab:
                     if isinstance(entry, tk.Entry):
                         entry.delete(0, tk.END)
                         entry.insert(0, value)
-                    elif isinstance(entry, ttk.Combobox) and value in entry['values']:
+                    if isinstance(entry, ttk.Combobox) and value in entry['values']:
                         entry.set(value)
-                    return  # Found match, exit early
+                    #return  # Found match, exit early
 
     def handle_import_errors(self, prefix_errors, suffix_errors, total_lines, loaded_lines):
         """Generate error logs and user messages"""
