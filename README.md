@@ -31,6 +31,18 @@ To launch the graphical interface, open a terminal in your working directory and
 
         - visualization 
 
+## required packages:
+if the "tkinter" is not installed. Please install it to use this package.
+
+
+For  Debian-based systems, run:
+
+                sudo apt-get install python3-tk
+
+For Red Hat-based systems, run:
+
+                sudo dnf install python3-tkinter
+
 
 ![image](https://github.com/user-attachments/assets/3466db92-f74f-4c6a-8f2f-169d784dd4c8)
 
