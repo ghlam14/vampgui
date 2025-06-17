@@ -149,11 +149,16 @@ class MainInputTab:
 
         indexed_suffixes = [
             "exchange-matrix[1]=",
+            "exchange-matrix-1st-nn[1]=",
+            "exchange-matrix-2nd-nn[1]=",
+            "exchange-matrix-3rd-nn[1]=",
+            "exchange-matrix-4th-nn[1]=",
             "biquadratic-exchange[1]=",
-            "neel-anisotropy-constant[1]=",
+            "four-spin-constant[1]=",
             "alloy-fraction[1]=",
             "intermixing[1]=",
-            "four-spin-constant[1]="
+            "neel-anisotropy-constant[1]=",
+            "alloy-fraction[1]"
         ]
 
         for mat_suffix in self.all_material_suffix:
@@ -462,35 +467,16 @@ class MainInputTab:
             "unit-cell-category=": "0",
             "material-name=": "Cobalt", 
             "damping-constant=": "1.0", 
-            "exchange-matrix[1]=": "0.0 J/link",
-            #"exchange-matrix[2]=": "0.0 J/link", 
-            #"exchange-matrix[3]=": "0.0 J/link", 
-            #"exchange-matrix-1st-nn[1]=": "0.0 J/link", 
-            #"exchange-matrix-1st-nn[2]=": "0.0 J/link",
-            #"exchange-matrix-2nd-nn[1]=": "0.0 J/link",
-            #"exchange-matrix-2nd-nn[2]=": "0.0 J/link", 
-            #"exchange-matrix-3rd-nn[1]=": "0.0 J/link",
-            #"exchange-matrix-3rd-nn[2]=": "0.0 J/link", 
-            #"exchange-matrix-4th-nn[1]=": "0.0 J/link",
-            #"exchange-matrix-4th-nn[2]=": "0.0 J/link", 
-            "biquadratic-exchange[1]=": "0.0 J/link", 
-            #"biquadratic-exchange[2]=": "0.0 J/link",
-            "atomic-spin-moment=": "1.72 !muB", 
+            "atomic-spin-moment=": "1.72 !muB",
             "surface-anisotropy-constant=": "0.0 J/atom", 
-            "neel-anisotropy-constant[1]=": "0.0 J", 
-            #"neel-anisotropy-constant[2]=": "0.0 J", 
             "lattice-anisotropy-constant=": "0.0 J/atom", 
             "relative-gamma=": "1",
             "initial-spin-direction=": "0, 0, 1",
             "material-element=": "Fe", 
-            "alloy-fraction[1]=": "0.0",
-            #"alloy-fraction[2]=": "0.0",  
             "minimum-height=": "0.0", 
             "maximum-height=": "1.0", 
             "core-shell-size=": "1.0", 
             "interface-roughness=": "1.0",
-            "intermixing[1]=": "1.0",
-            #"intermixing[2]=": "1.0", 
             "density=": "1.0",
             "uniaxial-anisotropy-constant=": "0.0 J/atom",
             "uniaxial-anisotropy-direction=": "0,0,1",
@@ -500,7 +486,7 @@ class MainInputTab:
             "sixth-order-uniaxial-anisotropy-constant" : "0.0 J/atom" ,
             "fourth-order-cubic-anisotropy-constant=" : "0.0 J/atom",
             "sixth-order-cubic-anisotropy-constant=" :  "0.0 J/atom",
-            #"couple-to-phononic-temperature=": "off",
+            "couple-to-phononic-temperature=": "off",
             "temperature-rescaling-exponent=": "1.0", 
             "temperature-rescaling-curie-temperature=": "0.0",
             "non-magnetic ": "none",
@@ -511,7 +497,17 @@ class MainInputTab:
             "lattice-anisotropy-file=": " ",
             "alloy-distribution" : " ",
             "alloy-variance" : "0.0",
-            "four-spin-constant[1]=" :"-0.23e-21"
+            "exchange-matrix[1]=": "0.0 J/link",
+            "exchange-matrix-1st-nn[1]=": "0.0 J/link",
+            "exchange-matrix-2nd-nn[1]=": "0.0 J/link",
+            "exchange-matrix-3rd-nn[1]=": "0.0 J/link",
+            "exchange-matrix-4th-nn[1]=": "0.0 J/link",
+            "biquadratic-exchange[1]=": "0.0 J/link",
+            "four-spin-constant[1]=" :"-0.23e-21",
+            "alloy-fraction[1]=": "0.0",
+            "intermixing[1]=": "1.0",
+            "neel-anisotropy-constant[1]=": "0.0 J",
+            "alloy-fraction[1]" : "0.5"
             #"voltage-controlled-magnetic-anisotropy-coefficient=": "0.0 J/V"
         }
 
@@ -522,5 +518,5 @@ class MainInputTab:
 
 #if __name__ == "__main__":
     #main()
-    
+
   

@@ -28,7 +28,7 @@
 #
 #
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk, filedialog, messagebox, Toplevel, Text, Scrollbar, Button
 import subprocess
 import os
 import platform
@@ -39,326 +39,440 @@ from vampgui.helpkey import  show_help
 
 class VisuaVDC:
     def __init__(self, tab):
+        self.Canvas, self.frame = self.canvas(tab)
+        self.tmp_path = self.create_vampire_dir()
+        self.command_running = False
+        self.create_vdc_path_section()
+        self.load_config()
+        self.create_vdc_flags_section()
+        self.create_vesta_section()
+        self.load_vesta_config()
+        self.create_povray_section()
+
+    #==========================
+    def canvas(self,tab):
+        # Create a canvas
         def configure_scroll_region(event):
             canvas.configure(scrollregion=canvas.bbox("all"))
-
-        # Create a canvas
         canvas = tk.Canvas(tab)
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        # Add a frame inside the canvas
         frame = tk.Frame(canvas)
         canvas.create_window((0, 0), window=frame, anchor=tk.NW)
-
-        # Add a vertical scrollbar to the canvas
         v_scrollbar = tk.Scrollbar(tab, orient=tk.VERTICAL, command=canvas.yview, bg='black')
         v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         canvas.config(yscrollcommand=v_scrollbar.set)
-
-        # Bind the canvas scrolling to the mouse wheel
+        h_scrollbar = tk.Scrollbar(tab, orient=tk.HORIZONTAL, command=canvas.xview, bg='black')
+        h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+        canvas.config(xscrollcommand=h_scrollbar.set)
         canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(-1 * int(event.delta / 120), "units"))
         canvas.bind_all("<Shift-MouseWheel>", lambda event: canvas.xview_scroll(-1 * int(event.delta / 120), "units"))
-
-        # Bind a function to adjust the canvas scroll region when the frame size changes
         frame.bind("<Configure>", configure_scroll_region)
-        self.Canvas=canvas
-        
-        # Get the home directory
-        home_dir = os.path.expanduser("~")
-        # Determine the .vampire directory based on the operating system
-        if sys.platform == "win32":
-            vampire_dir = os.path.join(home_dir,  "vampire_tmp")
-        else:
-            vampire_dir = os.path.join(home_dir, ".vampire")
-        # Create the .vampire directory if it doesn't exist
-        if not os.path.exists(vampire_dir):
-            os.makedirs(vampire_dir)
-        # Attribute to track command execution
-        self.command_running = False 
-        serial="serial"
-        para="para"
-        # Use this path for your base path
-        self.tmp_path = vampire_dir
-        
-        
+        return canvas, frame
 
-        self.path_mode = tk.LabelFrame(frame, text="vdc Program Path: ", font=("Helvetica", 14, "bold"))
-        self.path_mode.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=(8, 8))
-        
-        self.path_label = tk.Label(self.path_mode, text="Path/vdc:", font=("Helvetica", 12, "bold"))
-        self.path_label.grid(row=0, column=0, padx=20, pady=20, sticky="w")
-        self.path_entry = ttk.Entry(self.path_mode, width=50)
-        self.path_entry.grid(row=0, column=1, padx=20, pady=20)
-       
-        self.browse_button = tk.Button(self.path_mode, text="Browse", command=self.browse_vdc)
-        self.browse_button.grid(row=0, column=2, padx=10, pady=10)
-        self.load_config()
-        
-        self.flag_mode = tk.LabelFrame(frame, text="1- VDC Converter Flags: ", font=("Helvetica", 14, "bold"))
-        self.flag_mode.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=(8, 8))
-        
-        
-        # List of flags
+    def create_vampire_dir(self):
+        """Create the vampire directory if it doesn't exist"""
+        home_dir = os.path.expanduser("~")
+        vampire_dir = os.path.join(home_dir, "vampire_tmp" if sys.platform == "win32" else ".vampire")
+        os.makedirs(vampire_dir, exist_ok=True)
+        return vampire_dir
+
+
+    def create_vdc_path_section(self):
+        """Create the VDC program path section"""
+        frame = tk.LabelFrame(self.frame, text="vdc Program Path: ", font=("Helvetica", 14, "bold"))
+        frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=(8, 8))
+        tk.Label(frame, text="VDC Path:", font=("Helvetica", 12, "bold")).grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        self.path_entry = ttk.Entry(frame, width=50)
+        self.path_entry.grid(row=0, column=1, padx=5, pady=5)
+
+        tk.Button(frame, text="Browse", command=self.browse_vdc).grid(row=0, column=2, padx=5, pady=5)
+
+    def browse_vdc(self):
+        """Browse for VDC executable"""
+        if path := filedialog.askopenfilename(title="Select VDC executable"):
+            self.path_entry.delete(0, tk.END)
+            self.path_entry.insert(0, path)
+            self.save_config()
+
+    def save_config(self):
+        """Save VDC configuration"""
+        try:
+            with open(os.path.join(self.tmp_path, "config_vdc.txt"), "w") as f:
+                f.write(self.path_entry.get() + "\n")
+        except Exception as e:
+            print(f"Error saving VDC config: {e}")
+
+    def load_config(self):
+        """Load VDC configuration"""
+        try:
+            with open(os.path.join(self.tmp_path, "config_vdc.txt"), "r") as f:
+                if path := f.readline().strip():
+                    self.path_entry.insert(0, path)
+        except FileNotFoundError:
+            pass
+
+    def create_vdc_flags_section(self):
+        """Create the VDC flags section with checkboxes and help buttons"""
+        flag_frame = tk.LabelFrame(self.frame, text="VDC Converter Flags: ", font=("Helvetica", 14, "bold"))
+        flag_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=(8, 8))
+
         self.flags = {
             "--xyz ": "none",
             "--povray ": "none",
+            "--povray-cells ": "none",
+            "--povray-grains ": "none",
             "--vtk ": "none",
             "--text ": "none",
-            "--spin-spin-correlation ": "none", 
-            "--3D " : "none",
+            "--spin-spin-correlation ": "none",
+            "--3D ": "none",
             "--verbose ": "none",
             "--vector-z ": "0,0,1",
             "--vector-x ": "0,0,1",
             "--slice ": "0,1,0,1,0,1",
-            "--slice-void ": " ",
-            "--slice-sphere ": " ",
-            "--slice-cylinder ": " ", 
-            "--remove-material " : " ",
+            "--slice-void ": "",
+            "--slice-sphere ": "",
+            "--slice-cylinder ": "",
+            "--remove-material ": "",
             "--frame-start ": "0",
             "--frame-final ": "0",
-            "--afm ": " ",
+            "--afm ": "",
             "--colourmap ": "BWR",
-            "--custom-colourmap " : " "    
+            "--custom-colourmap ": ""
         }
-        
-        self.flag_vars = []
-        self.flag_checkbuttons = []
+  # --xyz    Data output in .xyz format for viewing in rasmol/jmol
+  #                --povray Data output in PoVRAY format for rendering
+  #                --povray-cells Data output in PoVRAY format for rendering
+  #                --povray-grains Data output in PoVRAY format for rendering
+  #                --vtk    Data output in VTK format for viewing in Paraview
+  #                --text   Data output in plain text format for plotting in gnuplot/excel etc
+  #                --cells  Data output in plain text format in cells
+  #                --ssc    Spin-spin correlation data in text format
+
+
+
+        colors = ["C2", "BWR", "CBWR", "Rainbow"]
+        self.flag_widgets = {}
         entries = {}
-        row = 1
-        col = 0
-        max_row = 7
-        Wdth = 12
-        Padx = 5
-        colors=["C2","BWR","CBWR","Rainbow"]
-        for i, flag in enumerate(self.flags.keys()):
+        Padx=5
+        max_row=7
+
+        for i, (flag, default) in enumerate(self.flags.items()):
+            row = i % 7 + 1
+            col =3*(i // 7)
+            # Checkbox
             var = tk.BooleanVar()
-            ncol = 3 * col
-            check = tk.Checkbutton(self.flag_mode, text=flag, variable=var, font=13)
-            check.grid(row=row, column=ncol+1, sticky="w", padx=10, pady=5)
-            
-            default_value = self.flags[flag]
-            
-            
-            if flag == "--colourmap ":
-                entry = ttk.Combobox(self.flag_mode, values=colors, state="readonly", width=Wdth)
-                entry.grid(row=row, column=ncol+2, padx=Padx  , sticky="e")
-                
-                if default_value in colors:
-                    entry.set(default_value)
-                    entry.insert(0, default_value)
-                    
+            # Create flag frame
+            check = tk.Checkbutton(flag_frame, text=flag, variable=var, font=13)
+            check.grid(row=row, column=col+1, sticky="w", padx=10, pady=5)
+            # Entry field
+            if flag == "--colourmap":
+                entry = ttk.Combobox(flag_frame, values=colors,state="readonly", width=10)
+                entry.grid(row=row, column=col+2, padx=Padx  , sticky="e")
+                entry.set(default if default in colors else "Rainbow")
+                entries[flag] = (var, entry, check)
+            elif default == "none":
+                entry = tk.Entry(flag_frame, width=10, state='disabled')
+                entry.grid(row=row, column=col+2,  padx=Padx , sticky="w")
+                entry.insert(0, default)
+                entries[flag] = (var, entry, check)
+            else:
+                entry = tk.Entry(flag_frame, bg='white', width=10)
+                entry.grid(row=row, column=col+2,  padx=Padx , sticky="w")
+                entry.insert(0, default)
+                entries[flag] = (var, entry, check)
+
+
+
+            # Help button
+            help_button = tk.Button(flag_frame, text="?", command=lambda flag=flag: show_help(flag))
+            help_button.grid(row=row, column=col+3, sticky="w")
+            self.flag_widgets[flag] = (var, entry)
+
+
+
+
+        run_vdc_button = tk.Button(flag_frame, text="Run vdc",bg="lightgreen", command=self.run_vdc, width=20)
+        run_vdc_button.grid(row=max_row+1, column=2, columnspan=3, pady=20, sticky="w")
+
+    def run_vdc(self):
+        """Run the VDC command with selected flags"""
+        if not (vdc_path := self.path_entry.get()):
+            messagebox.showerror("Error", "Please select VDC executable")
+            return
+
+        flags = []
+        for flag, (var, entry) in self.flag_widgets.items():
+            if var.get():
+                value = entry.get()
+
+                if value and value != "none":
+                    flags.append(f"{flag} {value}")
                 else:
-                    entry.set("Rainbow")
-                    entry.insert(0, "Rainbow")
-                entries[flag] = (var, entry, check)            
-            
-            elif default_value == "none":
-                entry = tk.Entry(self.flag_mode, width=Wdth, state='disabled')
-                entry.grid(row=row, column=ncol+2,  padx=Padx , sticky="w")
-                entry.insert(0, default_value)
-                entries[flag] = (var, entry, check)
-            else:
-                entry = tk.Entry(self.flag_mode, bg='white', width=Wdth)
-                entry.grid(row=row, column=ncol+2,  padx=Padx , sticky="w")
-                entry.insert(0, default_value)
-                entries[flag] = (var, entry, check)
-                
+                    flags.append(flag)
+        print(flags)
 
-            help_button = tk.Button(self.flag_mode, text="?", command=lambda flag=flag: show_help(flag))
-            help_button.grid(row=row, column=ncol+3, sticky="w")
+        if not flags:
+            messagebox.showerror("Error", "Please select at least one flag")
+            return
 
-            row += 1
-            if (i + 1) % max_row == 0:
-                row = 1
-                col += 1
-        self.flag_vars.append((flag, entries))
-                
-        self.run_vdc_button = tk.Button(self.flag_mode, text="Run vdc", command=self.run_vdc, width=20)
-        self.run_vdc_button.grid(row=max_row+1, column=2, columnspan=3, pady=20, sticky="w")
-        
-        
-        
-        #----------------------------------------------------------------
-        self.vesta_path_mode = tk.LabelFrame(frame, text="VESTA Program Path: ", font=("Helvetica", 14, "bold"))
-        self.vesta_path_mode.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=(8, 8))
-        
-        
-        
-
-        self.vesta_website_label = tk.Label(self.vesta_path_mode, text="To visualize the structure, run after  'vdc --xyz' command , by using VESTA software", font=("Helvetica", 11))
-        self.vesta_website_label.grid(row=0, column=0,columnspan=2, padx=20, pady=20, sticky="w")
-
-        self.vesta_website = tk.Label(
-            self.vesta_path_mode, 
-            text="https://jp-minerals.org/vesta/en/download.html",
-            font=("Helvetica", 11), 
-            fg="blue", 
-            cursor="hand2"
-        )
-        self.vesta_website.grid(row=0, column=2,columnspan=4,  padx=5, pady=20, sticky="w")
-
-        # Bind the Label to open the link when clicked
-        self.vesta_website.bind("<Button-1>", lambda e: self.open_link("https://jp-minerals.org/vesta/en/download.html"))
-
-        # Optionally, underline the text to make it look more like a link
-        self.vesta_website.config(font=('Helvetica', 11, 'underline'))
-
-        self.vesta_path_label = tk.Label(self.vesta_path_mode, text="Path/VESTA:", font=("Helvetica", 12, "bold"))
-        self.vesta_path_label.grid(row=1, column=0, padx=20, pady=10, sticky="e")
-        
-        self.vesta_path_entry = ttk.Entry(self.vesta_path_mode, width=50)
-        self.vesta_path_entry.grid(row=1, column=1,columnspan=3, padx=5, pady=10, sticky="w")
-       
-        self.browse_vesta_button = tk.Button(self.vesta_path_mode, text="Browse", command=self.browse_vesta)
-        self.browse_vesta_button.grid(row=1, column=4, padx=5, pady=10, sticky="e")
-        
-        
-        self.run_vesta_button = tk.Button(self.vesta_path_mode, text="VESTA", command=self.run_vesta)
-        self.run_vesta_button.grid(row=2, column=0, pady=20, sticky="e")
-        
-        self.file_label = tk.Label(self.vesta_path_mode, text=" .xyz file:" , font=("Helvetica", 12, "bold"))
-        self.file_label.grid(row=2, column=1, padx=10, pady=10, sticky="w")
-        
-        self.file_entry = ttk.Entry(self.vesta_path_mode, width=30)
-       
-        self.file_entry.grid(row=2, column=1,columnspan=3, padx=20, pady=20, sticky="e") 
-        self.file_entry.insert(0, "crystal.xyz")
-        self.load_config_vesta()
-        
-        #----------------------------------------------------------------
-        self.povray_mode = tk.LabelFrame(frame, text="Provy Program: ", font=("Helvetica", 14, "bold"))
-        self.povray_mode.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=(8, 8))
-        
-        
-        self.povray_label = tk.Label(self.povray_mode, text="To visualize the structure, run after 'vdc --povray' command, by using povray software(To install(UBUNTU): sudo apt install povray", font=("Helvetica", 11))
-        self.povray_label.grid(row=0, column=0,columnspan=4, padx=20, pady=10, sticky="w")
-   
-        
-        self.run_povray_button = tk.Button(self.povray_mode, text="povray", command=self.run_povray)
-        self.run_povray_button.grid(row=2, column=0, pady=20, sticky="e")
-        
-        self.file_pov_label = tk.Label(self.povray_mode, text=".pov file:" , font=("Helvetica", 12, "bold"))
-        self.file_pov_label.grid(row=2, column=1, padx=10, pady=10, sticky="w")
-        
-        self.file_pov_entry = ttk.Entry(self.povray_mode, width=30)
-        self.file_pov_entry.grid(row=2, column=2, padx=5, pady=20, sticky="w") 
-        self.file_pov_entry.insert(0, "spins.pov")
-      
-#------------------
-    def view_png(self):
-        plot_path =self.file_pov_entry.get()
-        plot_path=plot_path.split(".")[0]
-        plot_path =f"{plot_path}.png"
         try:
-            # Add widgets on top of the canvas
-            plot_show = tk.PhotoImage(file=plot_path)  # Replace with actual path
-            plot_show_label = tk.Label(self.Canvas, image=plot_show, bg="#FFFFFF")
-            plot_show_label.image = plot_show  # Keep a reference to the image
-            self.Canvas.create_window(150, 900, window=plot_show_label, anchor=tk.NW)  # Position the l
-        except FileNotFoundError:
-            pass
- #--------------------------         
-    def run_povray(self):
-        command = "povray  " + self.file_pov_entry.get() 
-        try:
-            result = subprocess.run(command, capture_output=True, text=True, shell=True)
+            result = subprocess.run(
+                f"{vdc_path} {' '.join(flags)}",
+                shell=True,
+                capture_output=True,
+                text=True
+            )
+
             if result.returncode == 0:
-                messagebox.showinfo("Provy Output", "provey finshed")
-                self.view_png()
-            else:
-                messagebox.showerror("Error", f"{self.file_pov_entry.get()} not found")
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
-        
- #--------------------------   
-    def open_link(self, url):
-        webbrowser.open_new(url)
- #--------------------------         
-    def browse_vesta(self):
-        filepath = filedialog.askopenfilename(title="Select VESTA executable")
-        if filepath:
-            self.vesta_path_entry.delete(0, tk.END)
-            self.vesta_path_entry.insert(0, filepath)
- #-------------------------- 
-    def run_vesta(self):
-        vesta_path = self.vesta_path_entry.get()
-        command =  vesta_path + " " + self.file_entry.get()
-        
-        try:
-            result = subprocess.run(command, capture_output=True, text=True, shell=True)
-            if result.returncode == 0:
-                messagebox.showinfo("vesta Output", "Vesta finshed")
+                # Create a custom dialog for VDC Output
+                dialog = Toplevel()
+                dialog.title("VDC Output")
+                dialog.geometry("600x200")  # Set custom size (width x height)
+
+                # Create a Text widget for the output
+                text_area = Text(dialog, wrap="word", font=("Arial", 12))
+                text_area.insert(tk.END, result.stdout)
+                text_area.config(state="disabled")  # Make text read-only
+
+                # Add a scrollbar
+                scrollbar = Scrollbar(dialog, orient="vertical", command=text_area.yview)
+                text_area.config(yscrollcommand=scrollbar.set)
+
+                # Layout widgets
+                text_area.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+                scrollbar.grid(row=0, column=1, sticky="ns", pady=10)
+
+                # Add an OK button to close
+                ok_button = Button(dialog, text="OK", command=dialog.destroy)
+                ok_button.grid(row=1, column=0, columnspan=2, pady=10)
+
+                # Make the dialog resizable
+                dialog.grid_rowconfigure(0, weight=1)
+                dialog.grid_columnconfigure(0, weight=1)
+
+                # Center the dialog on the screen
+                dialog.update_idletasks()
+                width = dialog.winfo_width()
+                height = dialog.winfo_height()
+                x = (dialog.winfo_screenwidth() // 2) - (width // 2)
+                y = (dialog.winfo_screenheight() // 2) - (height // 2)
+                dialog.geometry(f"{width}x{height}+{x}+{y}")
+
+                dialog.transient(dialog.master)  # Keep dialog on top of parent
+                dialog.grab_set()  # Make dialog modal
+                dialog.wait_window()  # Wait until dialog is closed
+
+                self.save_config()
             else:
                 messagebox.showerror("Error", result.stderr)
         except Exception as e:
             messagebox.showerror("Error", str(e))
-        # Save configuration
-        self.save_config_vesta()
- #--------------------------         
-    def save_config_vesta(self):
-        base_path=self.tmp_path
+    # def run_vdc(self):
+    #     vdc_path = self.path_entry.get()
+    #     selected_flags = ""
+    #     for _, entries in self.flag_vars:
+    #         for flag, (var, entry, check) in entries.items():
+    #             if var.get():
+    #                 selected_flags += flag + entry.get() + " "
+    #     command = vdc_path + " " + selected_flags
+    #
+    #     try:
+    #         result = subprocess.run(command, capture_output=True, text=True, shell=True)
+    #         if result.returncode == 0:
+    #             messagebox.showinfo("vdc Output", result.stdout)
+    #         else:
+    #             messagebox.showerror("Error", result.stderr)
+    #     except Exception as e:
+    #         messagebox.showerror("Error", str(e))
+    #     # Save configuration
+    #     self.save_config()
+
+    def save_config(self):
+        """Save VDC configuration"""
         try:
-            with open(os.path.join(base_path, "config_vesta.txt"), "w")  as file:
-                file.write(self.vesta_path_entry.get() + "\n")
-        
+            with open(os.path.join(self.tmp_path, "config_vdc.txt"), "w") as f:
+                f.write(self.path_entry.get() + "\n")
+        except Exception as e:
+            print(f"Error saving VDC config: {e}")
+
+
+    def create_vesta_section(self):
+        """Create the VESTA program section"""
+        frame = tk.LabelFrame(self.frame, text="VESTA Program PATH:", font=("Helvetica", 14, "bold"))
+        frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        # Website link
+        tk.Label(frame, text="Visualize structures after run 'vdc --xyz' using VESTA:", font=("Helvetica", 11)).grid(row=0, column=0, columnspan=2, padx=20, pady=20, sticky="w")
+
+        link = tk.Label(frame, text="https://jp-minerals.org/vesta/en/download.html",
+                       font=("Helvetica", 11, "underline"), fg="blue", cursor="hand2")
+        link.grid(row=0, column=2, columnspan=4, padx=5, pady=5, sticky="w")
+        link.bind("<Button-1>", lambda e: webbrowser.open(link.cget("text")))
+
+        # Path entry
+        tk.Label(frame, text="VESTA Path:", font=("Helvetica", 12, "bold")).grid(row=1, column=0, padx=5, pady=5, sticky="e")
+
+        self.vesta_path_entry = ttk.Entry(frame, width=40)
+        self.vesta_path_entry.grid(row=1, column=1, columnspan=3, padx=5, pady=5, sticky="w")
+
+        tk.Button(frame, text="Browse", command=self.browse_vesta).grid(row=1, column=4, padx=5, pady=5, sticky="w")
+
+        # XYZ file
+        tk.Label(frame, text="XYZ File:", font=("Helvetica", 12, "bold")).grid(row=2, column=0, padx=5, pady=5, sticky="e")
+        self.xyz_entry = ttk.Entry(frame, width=40)
+        self.xyz_entry.grid(row=2, column=1, columnspan=3, padx=5, pady=5, sticky="w")
+        self.xyz_entry.insert(0, "crystal.xyz")
+
+        tk.Button(frame, text="Run VESTA",bg="lightblue", command=self.run_vesta).grid(row=2, column=4,  padx=5, pady=5, sticky="w")
+
+    def browse_vesta(self):
+        """Browse for VESTA executable"""
+        if path := filedialog.askopenfilename(title="Select VESTA executable"):
+            self.vesta_path_entry.delete(0, tk.END)
+            self.vesta_path_entry.insert(0, path)
+            self.save_vesta_config()
+
+    def save_vesta_config(self):
+        """Save VESTA configuration"""
+        try:
+            with open(os.path.join(self.tmp_path, "config_vesta.txt"), "w") as f:
+                f.write(self.vesta_path_entry.get() + "\n")
+        except Exception as e:
+            print(f"Error saving VESTA config: {e}")
+
+
+    def load_vesta_config(self):
+        """Load VESTA configuration"""
+        try:
+            with open(os.path.join(self.tmp_path, "config_vesta.txt"), "r") as f:
+                if path := f.readline().strip():
+                    self.vesta_path_entry.insert(0, path)
         except FileNotFoundError:
             pass
- #--------------------------     
-    def load_config_vesta(self):
-        base_path=self.tmp_path
+
+    def run_vesta(self):
+        """Run the VESTA program"""
+        if not (vesta_path := self.vesta_path_entry.get()):
+            messagebox.showerror("Error", "Please select VESTA executable")
+            return
+        xyz_file = self.xyz_entry.get()
+
+        if not xyz_file:
+            messagebox.showerror("Error", "Please select a xyz file")
+            return
+        if not os.path.isfile(xyz_file):
+            messagebox.showerror("Error", "The selected xyz file does not exist")
+            return
+        if not xyz_file.lower().endswith('.xyz'):
+            messagebox.showerror("Error", "Please select a valid .xyz file")
+            return
+
+        xyz_file = self.xyz_entry.get()
         try:
-            with open(os.path.join(base_path, "config_vesta.txt"), "r")  as file:
-                lines = file.readlines()
-                if lines:
-                    self.vesta_path_entry.insert(0, lines[0].strip())
+            if platform.system() == "Windows":
+                subprocess.Popen([vesta_path, xyz_file], shell=True)
+            else:
+                subprocess.Popen([vesta_path, xyz_file])
+            self.save_vesta_config()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to run VESTA: {str(e)}")
+
+ #--------------------------
+    def open_link(self, url):
+        webbrowser.open_new(url)
+ #--------------------------
+
+
+
+    def create_povray_section(self):
+        """Create the POVRAY program section"""
+        frame = tk.LabelFrame(self.frame, text="POVRAY Program", font=("Helvetica", 14, "bold"))
+        frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        install_text = "Visualize structures after 'vdc --povray' using POVRAY"
+        if platform.system() != "Windows":
+            install_text += " (Install on Ubuntu: sudo apt install povray)"
+
+        # POV file
+        tk.Label(frame, text="POV File:", font=("Helvetica", 12, "bold")).grid(row=1, column=1, padx=5, pady=5, sticky="e")
+        self.pov_entry = ttk.Entry(frame, width=40)
+        self.pov_entry.grid(row=1, column=2, padx=5, pady=5, sticky="w")
+        self.pov_entry.insert(0, "spins.pov")
+
+        tk.Label(frame, text=install_text, font=("Helvetica", 11)).grid(row=0, column=0, columnspan=4, padx=5, pady=5, sticky="w")
+        tk.Button(frame, text="Run POVRAY",bg="lightblue", command=self.run_povray).grid(row=1, column=3, padx=5, pady=5, sticky="w")
+        tk.Button(frame, text="View PNG", bg="lightgreen" , command=self.view_png).grid(row=1, column=4, padx=5, pady=5, sticky="w")
+
+    def run_povray(self):
+        """Run the POVRAY command"""
+        pov_file = self.pov_entry.get()
+        if not pov_file:
+            messagebox.showerror("Error", "Please select a POV file")
+            return
+        if not os.path.isfile(pov_file):
+            messagebox.showerror("Error", "The selected POV file does not exist")
+            return
+        if not pov_file.lower().endswith('.pov'):
+            messagebox.showerror("Error", "Please select a valid .pov file")
+            return
+        try:
+            # if hasattr(self, 'current_image'):
+            #     self.canvas.delete(self.current_image)
+            # if hasattr(self, 'photo'):
+            #     self.photo = None
+
+            result = subprocess.run(
+                f"povray {pov_file}",
+                shell=True,
+                capture_output=True,
+                text=True
+            )
+            if result.returncode == 0:
+                messagebox.showinfo("POVRAY Output", "POVRAY finished successfully")
+                #self.view_png()
+                self.insert_png()
+            else:
+                messagebox.showerror("Error", result.stderr)
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+    def view_png(self):
+        """View the generated PNG file"""
+        png_file = self.pov_entry.get().replace(".pov", ".png")
+        try:
+            img = Image.open(png_file)
+            img.show()
         except FileNotFoundError:
-            pass
+            messagebox.showerror("Error", f"File not found: {png_file}")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to view PNG: {str(e)}")
+
  #--------------------------         
     def browse_vdc(self):
         filepath = filedialog.askopenfilename(title="Select vdc executable")
         if filepath:
             self.path_entry.delete(0, tk.END)
             self.path_entry.insert(0, filepath)    
- #--------------------------    
-    def run_vdc(self):
-        vdc_path = self.path_entry.get()
-        selected_flags = ""
-        for _, entries in self.flag_vars:
-            for flag, (var, entry, check) in entries.items():
-                if var.get():
-                    selected_flags += flag + entry.get() + " "
-        command = vdc_path + " " + selected_flags
-         
-        try:
-            result = subprocess.run(command, capture_output=True, text=True, shell=True)
-            if result.returncode == 0:
-                messagebox.showinfo("vdc Output", result.stdout)
-            else:
-                messagebox.showerror("Error", result.stderr)
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
-        # Save configuration
-        self.save_config()
+
  #--------------------------        
-    def save_config(self):
-        base_path=self.tmp_path
+    def insert_png(self):
+
+
+        frame = tk.LabelFrame(self.frame, text="POVRAY output image", font=("Helvetica", 14, "bold"))
+        frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        plot_path =self.pov_entry.get().replace(".pov", ".png")
+
         try:
-            with open(os.path.join(base_path, "config_vdc.txt"), "w")  as file:
-                file.write(self.path_entry.get() + "\n")
+            # Add widgets on top of the canvas
+            plot_show = tk.PhotoImage(file=plot_path)  # Replace with actual path
+            plot_show_label = tk.Label(frame, image=plot_show, bg="green")
+            plot_show_label.grid( padx=5, pady=5, sticky="w")
+            plot_show_label.image = plot_show  # Keep a reference to the image
+            #frame.create_window(150, 900, window=plot_show_label, anchor=tk.NW)  # Position the l
         except FileNotFoundError:
             pass
- #--------------------------    
-    def load_config(self):
-        base_path=self.tmp_path
-        try:
-            with open(os.path.join(base_path, "config_vdc.txt"), "r")  as file:
-                lines = file.readlines()
-                if lines:
-                    self.path_entry.insert(0, lines[0].strip())
-        except FileNotFoundError:
-            pass
- #--------------------------        
-            
+
             
             
 

@@ -120,7 +120,8 @@ class InputTab:
         Changing the order of keywords will update the order of the subtabs.
         """
         # "prefix" ,  "onglet_title"
-        onglet_dic={"create" :"Creation",
+        onglet_dic={
+                "create" :"Material attributes",
                 "material" : "Material attributes",
                 "dimensions" :"Dimensions System",
                 "sim" : "Simulation",
@@ -129,12 +130,12 @@ class InputTab:
                 "anisotropy"  :"Anisotropy cal.",
                 "dipole" :"Dipole field cal.",
                 "hamr" :"HAMR cal.",
-                "output" : "Output" ,
                 "config"  : "Configuration",
+                "output" : "Output" ,
                 "screen" :"Screen" ,
                 "cells" : "Cells",
                 }
-        self.prefix_list = onglet_dic.keys()
+        self.prefix_list = list(onglet_dic.keys())
         self.all_suffix_values()
         self.user_input = []
 
@@ -142,12 +143,12 @@ class InputTab:
             self.suffix_list = list(getattr(self, f"{prefix}_default_values"))
 
 
-            #if prefix in [self.prefix_list[0], self.prefix_list[1]]:
-                ## include 2 lists in same subtab
-                #if prefix == self.prefix_list[0]:
-                    #self.create_tab = ttk.Frame(sub_notebook)
-                    #sub_notebook.add(self.create_tab, text=f"{onglet_title.capitalize()} ")
 
+            if prefix in [self.prefix_list[0], self.prefix_list[1]]:
+                # include 2 lists in same subtab
+                if prefix == self.prefix_list[0]:
+                    self.create_tab = ttk.Frame(sub_notebook)
+                    sub_notebook.add(self.create_tab, text=f"{onglet_title.capitalize()} ")
 
                     #self.add_prefix_list(self.create_tab, prefix)
                 #elif prefix == self.prefix_list[1]:
@@ -179,11 +180,10 @@ class InputTab:
                 #elif prefix == self.prefix_list[8]:
 
                     #self.add_prefix_list(self.create_tab, prefix)
-            #else:
+            else:
 
-            self.create_tab = ttk.Frame(sub_notebook)
-            sub_notebook.add(self.create_tab, text=f"{onglet_title.capitalize()} ")
-
+                self.create_tab = ttk.Frame(sub_notebook)
+                sub_notebook.add(self.create_tab, text=f"{onglet_title.capitalize()} ")
 
             self.add_prefix_list(self.create_tab, prefix)
 
@@ -244,7 +244,7 @@ class InputTab:
                 "type": "combobox", "values": ["macrocell", "tensor", "atomistic"]
                 },
             "function": {
-                "type": "combobox", "values": ["nearest-neighbour", "exponential"]
+                "type": "combobox", "values": ["nearest-neighbour", "exponential", "shell"]
                 },
             "algorithm": {
                 "type": "combobox", "values": ["adaptive", "spin-flip", "uniform", "angle", "hinzke-nowak"]
@@ -356,102 +356,61 @@ class InputTab:
                 var.set(False)
                 self.set_checkbox_color(check, 'black')
 # ##=============================================================
-#     def load_input_values(self, file_path):
-#         skywd=[]
-#         for _, entries in self.user_input:
-#             for subkeyword, (var, entry, check) in entries.items():
-#                 skywd.append(subkeyword.strip().strip("="))
-#         try:
-#             with open(file_path, "r") as f:
-#                 self.deselect_all_checkboxes()  # Correctly call the method
-#                 lines = f.readlines()
-#                 Totkey=0
-#                 numkey=0
-#                 txtlog=""
-#                 stxtlog=""
-#
-#                 for line in lines:
-#                     line = line.lstrip()
-#                     str_line = line.strip()
-#                     if ":" in line and not str_line.startswith('#'):
-#                         Totkey +=1
-#                         prefix_suffix, value = re.split(r'\s|=', line, maxsplit=1)
-#                         key = prefix_suffix.strip().split(":")[0]
-#                         sky = keysubkey.strip().split(":")[1]
-#                         sky =sky.strip().strip("=")
-#                         value = value.strip().strip("=").strip()
-#                         #print (value)
-#
-#                         if key in self.prefix_list:
-#                             #print(key, f":{Totkey}-----------------")
-#                             if sky in skywd:
-#                                 numkey +=1
-#                                 subkey = keysubkey.strip().split(":")[1]
-#                                 subkey = subkey.strip().strip("=")
-#                                 value = value.strip().strip("=")
-#                                 if key=="output" and subkey=="applied-field-strength":
-#                                     subkey="applied-field-strengths"
-#                                 if key=="output" and subkey=="applied-field-unit-vector":
-#                                     subkey="applied-field-unit-vectors"
-#                                 if key=="cells" and subkey == "macro-cell-size":
-#                                     subkey="macro-cell-sizes"
-#                                 if key=="screen" and subkey == "magnetisation-length":
-#                                     subkey="magnetisation-lengths"
-#                                 if key=="screen" and subkey == "mean-magnetisation-length":
-#                                     subkey="mean-magnetisation-lengths"
-#                                 if key=="screen" and subkey == "temperature":
-#                                     subkey="temperatures"
-#                                 if key=="output" and  subkey == "temperature":
-#                                     subkey="temperature."
-#                                 if key=="screen" and subkey == "time-steps":
-#                                    subkey="time-steps."
-#                                 for keyword, entries in self.user_input:
-#                                     for subkeyword, (var, entry, check) in entries.items():
-#                                         if subkeyword.strip("=").strip() == subkey:
-#                                             var.set(True)
-#                                             self.set_checkbox_color(check, 'blue')
-#                                             if isinstance(entry, tk.Entry):
-#                                                 entry.delete(0, tk.END)
-#                                                 entry.insert(0, value)
-#                                             if isinstance(entry, ttk.Combobox):
-#                                                 if value in entry['values']:
-#                                                     entry.set(value)
-#                                                     entry.insert(0, value)
-#                             else:
-#                                 stxtlog =  f" {stxtlog} \n {keysubkey}"
-#                         else:
-#                             txtlog =  f" {txtlog} \n {keysubkey}"
-#                 if txtlog != "" or stxtlog != "":
-#                     with open("input_load.log", 'w') as flog:
-#                         flog.write("the list keywords  not found in List of VGUI\n")
-#                         flog.write("---------------------------------------------\n")
-#                         flog.write(f"{txtlog}")
-#                 self.inputfile = file_path
-#             if txtlog != "" or stxtlog != "":
-#                 messagebox.showinfo("Echec !!",f"number of lines not loaded: {Totkey-numkey} \n Keyword error:\n{txtlog} \n Sub keyword error:\n  {stxtlog}"    )
-#             else:
-#                 messagebox.showinfo("Success" ,f"File loaded successfully! \n Number of loaded keyword: {numkey} \n Number of Total keyword: {Totkey}\n")
-#         except FileNotFoundError:
-#             print(f"File {file_path} not found.")
-#         except Exception as e:
-#             print(f"An error occurred: {e}")
-#
-#
+
     def load_input_values(self, file_path):
         # Precompute valid subkeywords
         valid_suffix = {input_suffix.strip().strip("=") for _, entries in self.user_input
                         for input_suffix in entries.keys()}
 
         # Mapping for special case conversions
+
+
         special_cases = {
-            ("output", "applied-field-strength"): "applied-field-strengths",
-            ("output", "applied-field-unit-vector"): "applied-field-unit-vectors",
-            ("cells", "macro-cell-size"): "macro-cell-sizes",
-            ("screen", "magnetisation-length"): "magnetisation-lengths",
-            ("screen", "mean-magnetisation-length"): "mean-magnetisation-lengths",
-            ("screen", "temperature"): "temperatures",
+            ("output", "time-steps"): "time-steps.",
             ("output", "temperature"): "temperature.",
-            ("screen", "time-steps"): "time-steps."
+            ("output", "applied-field-strength"): "applied-field-strength.",
+            ("output", "applied-field-unit-vector"): "applied-field-unit-vector.",
+            ("screen", "time-steps"): "time-steps..",
+            ("screen", "real-time"): "real-time.",
+            ("screen", "temperature"): "temperature..",
+            ("screen", "applied-field-strength"): "applied-field-strength..",
+            ("screen", "applied-field-unit-vector"): "applied-field-unit-vector..",
+            ("screen", "applied-field-alignment"): "applied-field-alignment.",
+            ("screen", "material-applied-field-alignment"): "material-applied-field-alignment.",
+            ("screen", "magnetisation"): "magnetisation.",
+            ("screen", "magnetisation-length"): "magnetisation-length.",
+            ("screen", "mean-magnetisation-length"): "mean-magnetisation-length.",
+            ("screen", "mean-magnetisation"): "mean-magnetisation.",
+            ("screen", "material-magnetisation"): "material-magnetisation.",
+            ("screen", "material-mean-magnetisation-length"): "material-mean-magnetisation-length.",
+            ("screen", "material-mean-magnetisation"): "material-mean-magnetisation.",
+            ("screen", "total-torque"): "total-torque.",
+            ("screen", "mean-total-torque"): "mean-total-torque.",
+            ("screen", "constraint-phi"): "constraint-phi.",
+            ("screen", "constraint-theta"): "constraint-theta.",
+            ("screen", "material-mean-torque"): "material-mean-torque.",
+            ("screen", "mean-susceptibility"): "mean-susceptibility.",
+            ("screen", "material-mean-susceptibility"): "material-mean-susceptibility.",
+            ("screen", "material-standard-deviation"): "material-standard-deviation.",
+            ("screen", "electron-temperature"): "electron-temperature.",
+            ("screen", "phonon-temperature"): "phonon-temperature.",
+            ("screen", "total-energy"): "total-energy.",
+            ("screen", "mean-total-energy"): "mean-total-energy.",
+            ("screen", "anisotropy-energy"): "anisotropy-energy.",
+            ("screen", "mean-anisotropy-energy"): "mean-anisotropy-energy.",
+            ("screen", "exchange-energy"): "exchange-energy.",
+            ("screen", "mean-exchange-energy"): "mean-exchange-energy.",
+            ("screen", "applied-field-energy"): "applied-field-energy.",
+            ("screen", "mean-applied-field-energy"): "mean-applied-field-energy.",
+            ("screen", "magnetostatic-energy"): "magnetostatic-energy.",
+            ("screen", "mean-magnetostatic-energy"): "mean-magnetostatic-energy.",
+            ("screen", "material-total-energy"): "material-total-energy.",
+            ("screen", "material-mean-total-energy"): "material-mean-total-energy.",
+            ("screen", "mean-specific-heat"): "mean-specific-heat.",
+            ("screen", "material-mean-specific-heat"): "material-mean-specific-heat.",
+            ("screen", "fractional-electric-field-strength"): "fractional-electric-field-strength.",
+            ("screen", "mpi-timings"): "mpi-timings.",
+            ("screen", "output-rate"): "output-rates"
         }
 
         try:
@@ -518,13 +477,15 @@ class InputTab:
                 clean_suffix = full_suffix.strip("=").strip()
                 if clean_suffix == suffix:
                     var.set(True)
-                    self.set_checkbox_color(check, 'blue')
 
+                    self.set_checkbox_color(check, 'blue')
                     if isinstance(entry, tk.Entry):
                         entry.delete(0, tk.END)
                         entry.insert(0, value)
-                    if isinstance(entry, ttk.Combobox) and value in entry['values']:
+
+                    if isinstance(entry, ttk.Combobox) and value in entry["values"]:
                         entry.set(value)
+
                     #return  # Found match, exit early
 
     def handle_import_errors(self, prefix_errors, suffix_errors, total_lines, loaded_lines):
@@ -551,11 +512,6 @@ class InputTab:
             flog.write("\n".join(error_log))
         messagebox.showwarning("Partial Import ", "\n".join(error_log))
 
-
-
-
-
-
 #============================================
     def load_file(self):
         file_path = filedialog.askopenfilename(title="Select file", filetypes=[("input files", "*"), ("All files", "*.*")])
@@ -565,90 +521,12 @@ class InputTab:
     def open_input_file(self):
         InputFileViewer(self.input_v)
 #=============================================                  
-#     def save_to_file(self):
-#         filename = self.input_v
-#         with open(filename, 'w') as file:
-#             file.write("#------------------------------------------\n")
-#             file.write("# Sample vampire input file to perform\n")
-#             file.write("#------------------------------------------\n\n")
-#             tstkeyword="init"
-#             for index, (keyword, entries) in enumerate(self.user_input, start=1):
-#
-#                 for subkeyword, (var, entry,_) in entries.items():
-#                     subk=subkeyword
-#                     if var.get():
-#                         if keyword != tstkeyword :
-#                             if keyword == "sim":
-#                                 file.write("#------------------------------------------\n")
-#                                 file.write(f"#   {keyword.capitalize()}ulation ;; attributes & config \n")
-#                                 file.write("#------------------------------------------\n\n")
-#                             else:
-#                                 file.write("#------------------------------------------\n")
-#                                 file.write(f"#   {keyword.capitalize()} ;; \n")
-#                                 file.write("#------------------------------------------\n\n")
-#                         if entry:
-#                             entry_value = entry.get().strip()
-#                             if entry_value == "none":
-#                                 if subk == "applied-field-strengths ":
-#                                     subk="applied-field-strength "
-#                                 if subk == "applied-field-unit-vectors=":
-#                                     subk="applied-field-unit-vector="
-#                                 if subk == "macro-cell-sizes=":
-#                                     subk="macro-cell-size="
-#                                 if subk == "magnetisation-lengths ":
-#                                     subk="magnetisation-length "
-#                                 if subk == "material-magnetisations ":
-#                                     subk="material-magnetisation "
-#                                 if subk == "mean-magnetisation-lengths ":
-#                                     subk="mean-magnetisation-length "
-#                                 if subk == "temperatures ":
-#                                     subk="temperature "
-#                                 if  subk == "temperature. ":
-#                                     subk="temperature "
-#                                 if subk == "time-steps. ":
-#                                     subk="time-steps "
-#                                 file.write(f"{keyword}:{subk} \n")
-#                             else:
-#                                 if subk == "applied-field-strengths ":
-#                                     subk="applied-field-strength "
-#                                 if subk == "applied-field-unit-vectors=":
-#                                     subk="applied-field-unit-vector="
-#                                 if subk == "macro-cell-sizes=":
-#                                     subk="macro-cell-size="
-#                                 if subk == "magnetisation-lengths ":
-#                                     subk="magnetisation-length "
-#                                 if subk == "material-magnetisations ":
-#                                     subk="material-magnetisation "
-#                                 if subk == "mean-magnetisation-lengths ":
-#                                     subk="mean-magnetisation-length "
-#                                 if subk == "temperatures ":
-#                                     subk="temperature "
-#                                 if  subk == "temperature. ":
-#                                     subk="temperature "
-#                                 if subk == "time-steps. ":
-#                                     subk="time-steps "
-#                                 file.write(f"{keyword}:{subk}{entry_value} \n")
-#                         tstkeyword=keyword
-#             file.write("\n")
-#             messagebox.showinfo("Success", f"File '{filename}' saved successfully!")
+
     def save_to_file(self):
         filename = self.input_v
         if not filename:
             messagebox.showerror("Error", "No filename specified")
             return
-
-        # Subkey normalization mapping
-        SUBKEY_MAPPING = {
-            "applied-field-strengths": "applied-field-strength",
-            "applied-field-unit-vectors=": "applied-field-unit-vector=",
-            "macro-cell-sizes=": "macro-cell-size=",
-            "magnetisation-lengths": "magnetisation-length",
-            "material-magnetisations": "material-magnetisation",
-            "mean-magnetisation-lengths": "mean-magnetisation-length",
-            "temperatures": "temperature",
-            "temperature.": "temperature",
-            "time-steps.": "time-steps"
-        }
 
         try:
             with open(filename, 'w') as file:
@@ -698,7 +576,10 @@ class InputTab:
                     for subkeyword, entry_value in keyword_entries:
                         # Normalize subkey
                         clean_subkey = subkeyword.strip()
-                        normalized_subkey = SUBKEY_MAPPING.get(clean_subkey, clean_subkey)
+                        normalized_subkey =clean_subkey.strip(".").strip("..")
+                        if  normalized_subkey == "output-rates=" and keyword == "screen" :
+                            normalized_subkey = "output-rate="
+
 
                         # Format output line
                         if entry_value == "none":
@@ -739,8 +620,7 @@ class InputTab:
                     "particle-array ": "none",
                     "hexagonal-particle-array" : "none",
                     "voronoi-film ": "none",
-                    #
-                    
+                    "crystal-sublattice-materials=":"true",
                     "particle-centre-offset ": "none",
                     "single-spin ": "none",
                     "select-material-by-height=": "true",
@@ -772,9 +652,7 @@ class InputTab:
                     "spin-initialisation-random-seed=": "123456"
                     }
    
-        
-    
-    
+
         self.dimensions_default_values = {
                     "unit-cell-size=": "3.54  !nm", 
                     "unit-cell-size-x=": "0.01 !nm ",
@@ -830,7 +708,7 @@ class InputTab:
                     "two-temperature-phonon-heat-capacity=" : " ",
                     "two-temperature-electron-phonon-coupling=" : " ",
                     "cooling-function=" : " ",
-                    "applied-field-strength=" : " ",
+                    "applied-field-strength=" : "0.2",
                     "maximum-applied-field-strength=": " ", 
                     "equilibration-applied-field-strength=" : " ",
                     "applied-field-strength-increment=" : " ",
@@ -904,17 +782,37 @@ class InputTab:
                     "bit-sequence-type="  :  "  ", 
                     "bit-sequence="  :  " " 
                         }
+        self.config_default_values = {
+                    "atoms=" : "end",
+                    "macro-cells=" : " ",
+                    "output-format="  : "text",
+                    "output-mode=" : "file-per-node",
+                    "output-nodes=" : "1" ,
+                    "atoms-output-rate=" : "1000",
+                    "atoms-minimum-x=" : "0.0",
+                    "atoms-minimum-y=" : "0.0",
+                    "atoms-minimum-z=" : "0.0",
+                    "atoms-maximum-x=" : "0.0",
+                    "atoms-maximum-y=" : "0.0",
+                    "atoms-maximum-z=" : "0.0",
+                    "macro-cells-output-rate " : "0",
+                    "identify-surface-atoms " : "none",
+                    "field-range-descending-minimum": " 0.0 T",
+                    "field-range-descending-maximum": " 0.0 T",
+                    "field-range-ascending-minimum": " 0.0 T",
+                    "field-range-ascending-maximum": " 0.0 T",
+                        }
         self.output_default_values = {
                     "column-headers=" : "true",
-                    "time-steps " : "none",
+                    "time-steps. " : "none",
                     "real-time " : "none",
                     "temperature. " : "none",
-                    "applied-field-strengths " : "none",
-                    "applied-field-unit-vectors " : "none",
+                    "applied-field-strength. " : "none",
+                    "applied-field-unit-vector. " : "none",
                     "applied-field-alignment " : "none",
                     "material-applied-field-alignment " : "none",
                     "magnetisation " : "none",
-                    "magnetisation-length ": " ",
+                    "magnetisation-length ": "none",
                     "mean-magnetisation-length " : "none",
                     "mean-magnetisation " : "none",
                     "material-magnetisation " : "none",
@@ -951,32 +849,48 @@ class InputTab:
                     "precision=" : "6",
                     "fixed-width " : "none"
                         }       
-        self.config_default_values = {
-                    "atoms=" : "end",
-                    "macro-cells=" : " ",
-                    "output-format="  : "text", 
-                    "output-mode=" : "file-per-node",
-                    "output-nodes=" : "1" ,
-                    "atoms-output-rate=" : "1000",
-                    "atoms-minimum-x=" : "0.0",
-                    "atoms-minimum-y=" : "0.0",
-                    "atoms-minimum-z=" : "0.0",
-                    "atoms-maximum-x=" : "0.0",
-                    "atoms-maximum-y=" : "0.0",
-                    "atoms-maximum-z=" : "0.0",
-                    "macro-cells-output-rate " : "0",
-                    "identify-surface-atoms " : "none",
-                    "field-range-descending-minimum": " 0.0 T",
-                    "field-range-descending-maximum": " 0.0 T",
-                    "field-range-ascending-minimum": " 0.0 T",
-                    "field-range-ascending-maximum": " 0.0 T",
-                        }
         self.screen_default_values = {
-                    "time-steps. " :"none",
-                    "temperatures ": "none",
-                    "magnetisation-lengths ":"none",
-                    "mean-magnetisation-lengths ": "none",
-                    "material-magnetisations " : "none"
+                    "time-steps.. " : "none",
+                    "real-time. " : "none",
+                    "temperature.. " : "none",
+                    "applied-field-strength.. " : "none",
+                    "applied-field-unit-vector.. " : "none",
+                    "applied-field-alignment. " : "none",
+                    "material-applied-field-alignment. " : "none",
+                    "magnetisation. " : "none",
+                    "magnetisation-length. ": "none",
+                    "mean-magnetisation-length. " : "none",
+                    "mean-magnetisation. " : "none",
+                    "material-magnetisation. " : "none",
+                    "material-mean-magnetisation-length. " : "none",
+                    "material-mean-magnetisation. " : "none",
+                    "total-torque. " : "none",
+                    "mean-total-torque. " : "none",
+                    "constraint-phi. " : "none",
+                    "constraint-theta. " : "none",
+                    "material-mean-torque. " : "none",
+                    "mean-susceptibility. " : "none",
+                    "material-mean-susceptibility. " : "none",
+                    "material-standard-deviation. " : "none",
+                    "electron-temperature. " : "none",
+                    "phonon-temperature. " : "none",
+                    "total-energy. " : "none",
+                    "mean-total-energy. " : "none",
+                    "anisotropy-energy. " : "none",
+                    "mean-anisotropy-energy. " : "none",
+                    "exchange-energy. " : "none",
+                    "mean-exchange-energy. " : "none",
+                    "applied-field-energy. " : "none",
+                    "mean-applied-field-energy. " : "none",
+                    "magnetostatic-energy. " : "none",
+                    "mean-magnetostatic-energy. " : "none",
+                    "material-total-energy. " : "none",
+                    "material-mean-total-energy. " : "none",
+                    "mean-specific-heat. " : "none",
+                    "material-mean-specific-heat. " : "none",
+                    "fractional-electric-field-strength. " : "none",
+                    "mpi-timings. " : "none",
+                    "output-rates=": "1",
                         }
         self.cells_default_values = {
                     "macro-cell-sizes=" :"2 !nm",

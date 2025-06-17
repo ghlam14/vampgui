@@ -180,7 +180,7 @@ class Plotmain:
             if self.figure: plt.close(self.figure)
             if self.canvas: self.canvas.get_tk_widget().destroy()
 
-            self.figure = plt.Figure(figsize=(8, 8), dpi=100)
+            self.figure = plt.Figure(figsize=(5, 10), dpi=100)
             ax = self.figure.add_subplot(111)
 
             # Use the selected line style
@@ -250,7 +250,7 @@ class Plotmain:
         preview_frame = tk.Label(self.main_frame, text="Data Preview", font=("Helvetica", 12, "bold"))
         preview_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        self.preview_text = tk.Text(preview_frame, wrap=tk.NONE, height=15)
+        self.preview_text = tk.Text(preview_frame, wrap=tk.NONE, height=8)
         self.preview_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         y_scroll = tk.Scrollbar(preview_frame, command=self.preview_text.yview)
@@ -325,10 +325,22 @@ class Plotmain:
             return
 
         try:
-            self.figure.savefig(file_path, dpi=300, bbox_inches='tight')
+            self.figure.savefig(file_path, dpi=600, bbox_inches='tight')
             tk.messagebox.showinfo("Save Successful", f"Plot saved successfully to:\n{file_path}")
         except Exception as e:
             tk.messagebox.showerror("Save Error", f"Failed to save plot:\n{str(e)}")
 
 
 
+
+
+
+
+
+
+# if __name__ == "__main__":
+#     root = tk.Tk()
+#     root.title("Vampire Data Plotter")
+#     root.geometry("900x700")
+#     app = Plotmain(root)
+#     root.mainloop()
