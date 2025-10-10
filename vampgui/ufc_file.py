@@ -28,7 +28,7 @@
 #
 #
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import  messagebox
 from vampgui.file_io import InputFileViewer 
 from vampgui.helpkey import  show_help
 
@@ -36,26 +36,26 @@ class ufcFile:
     def __init__(self, tab):
         def configure_scroll_region(event):
             canvas.configure(scrollregion=canvas.bbox("all"))
-# Create a canvas
+            # Create a canvas
         canvas = tk.Canvas(tab)
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-# Add a frame inside the canvas
+        # Add a frame inside the canvas
         frame = tk.Frame(canvas)
         canvas.create_window((0, 0), window=frame, anchor=tk.NW)
-# Add a vertical scrollbar to the canvas
+        # Add a vertical scrollbar to the canvas
         v_scrollbar = tk.Scrollbar(tab, orient=tk.VERTICAL, command=canvas.yview, bg='black')
         v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         canvas.config(yscrollcommand=v_scrollbar.set)
-# Add a horizontal scrollbar to the canvas
+        # Add a horizontal scrollbar to the canvas
         h_scrollbar = tk.Scrollbar(tab, orient=tk.HORIZONTAL, command=canvas.xview, bg='black')
         h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
         canvas.config(xscrollcommand=h_scrollbar.set)
-# Bind the canvas scrolling to the mouse wheel
+        # Bind the canvas scrolling to the mouse wheel
         canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(-1 * int(event.delta / 120), "units"))
         canvas.bind_all("<Shift-MouseWheel>", lambda event: canvas.xview_scroll(-1 * int(event.delta / 120), "units"))
-# Bind a function to adjust the canvas scroll region when the frame size changes
+        # Bind a function to adjust the canvas scroll region when the frame size changes
         frame.bind("<Configure>", configure_scroll_region)
-# Frame for buttons
+        # Frame for buttons
         button_frame = tk.Frame(frame) 
         button_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)      
         tk.Button(button_frame, bg='cyan', text="Save UCF File", command=self.generate_ucf_file).grid(row=0, column=0, padx=5, pady=5,sticky="w")

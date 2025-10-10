@@ -28,5 +28,9 @@
 #
 #
 #
-__all__ = ["file_io.py",   "helpkey.py","input_file.py",  "home_page.py",  "plot_output.py",  "main.py",  "vampire_console.py",  "material.py", "visualization.py","ufc_file.py","version.py","cif_2_ucf.py"  , "vampire_pymatgen.py"]
+__all__ = ["file_io.py",   "helpkey.py","input_file.py",  "home_page.py", 
+           "plot_output.py",  "main.py",  "vampire_console.py",  "material.py",
+           "visualization.py","ufc_file.py","version.py","cif_2_ucf.py"  , 
+           "vampire_pymatgen.py"
+           ]
 

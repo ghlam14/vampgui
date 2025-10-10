@@ -30,8 +30,8 @@
 
 
 import tkinter as tk
-from tkinter import scrolledtext, messagebox
-from tkinter import font as tkfont
+# from tkinter import  messagebox
+# from tkinter import font as tkfont
  
         
 def show_help(keywords):
@@ -74,7 +74,7 @@ def show_help(keywords):
     elif keyword == "exchange-matrix-1st-nn[1]": 
         help_content += " = float [default 0.0 J/link]\n Defines the pairwise exchange energy between atoms of type index and neighbour-index for the first nearest neighbour shell when using the built in exchange functions. This is exactly the same as the usual parameter exchange-matrix[index] but with a more specific syntax including the shell number of 1."
     elif keyword == "exchange-matrix-2nd-nn[1]": 
-        help_content += " = float [default 0.0 J/link]\n Defines the pairwise exchange energy between atoms of type index and neighbour-index for the second nearest neighbour shell when using the built in exchange functions. If you are using the generic crystal structures available in VAMPIRE, then it is possible to define a longer ranged Hamiltonian with next-nearest up to 10th nearest neighbour interactions. The interaction shells refer to sets ofneighbours with the same interaction range from a target atom. To define a longer range Hamiltonian you need to define the input file parameters exchange:interaction-range = R  and exchange:function = shell, where R is the interaction range as a multiple of the nearest neighbour distance.….VAMPIRE  User Manual p64."
+        help_content += " = float [default 0.0 J/link]\n Defines the pairwise exchange energy between atoms of type index and neighbour-index for the second nearest neighbour shell when using the built in exchange functions. If you are using the generic crystal structures available in VAMPIRE, then it is possible to define a longer ranged Hamiltonian with next-nearest up to 10th nearest neighbour interactions. The interaction shells refer to sets ofneighbours with the same interaction range from a target atom. To define a longer range Hamiltonian you need to define the input file parameters exchange:interaction-range = R  and exchange:function = shell, where R is the interaction range as a multiple of the nearest neighbour distance.….VAMPIRE  User Manual p64."
     elif keyword == "exchange-matrix-3rd-nn[1]": 
         help_content += " = float [default 0.0 J/link] \n Defines the pairwise exchange energy between atoms of type index and neighbour-index for the third nearest neighbour shell when using the built in exchange functions. See 2nd neighbour description for more details on using this feature." 
     elif keyword == "exchange-matrix-4th-nn[1]": 
@@ -519,7 +519,7 @@ def show_help(keywords):
     elif keyword == "material-mean-total-energy":
         help_content += "Outputs the mean total energy of each material in the system."
     elif keyword == "mean-specific-heat":
-        help_content += "Outputs the mean total specific heat Cv …"
+        help_content += "Outputs the mean total specific heat Cv …"
     elif keyword == "material-mean-specific-heat":
         help_content += "Outputs the mean specific heat for each defined material in the system in units of k_B per spin. The data is formatted as one column per material."
     elif keyword == "fractional-electric-field-strength":

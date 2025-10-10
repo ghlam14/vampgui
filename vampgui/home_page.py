@@ -41,7 +41,7 @@ from vampgui.input_file import InputTab
 from vampgui.version import __version__
 from vampgui.ufc_file import ufcFile
 from vampgui.cif_2_ucf import cif_2_ucf
-from tkinter import messagebox
+
 
 
 

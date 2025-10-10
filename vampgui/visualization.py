@@ -34,7 +34,7 @@ import os
 import platform
 import sys
 import webbrowser
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 from vampgui.helpkey import  show_help
 
 class VisuaVDC:
@@ -93,6 +93,12 @@ class VisuaVDC:
             self.path_entry.delete(0, tk.END)
             self.path_entry.insert(0, path)
             self.save_config()
+            
+    # def browse_vdc(self):
+    #     filepath = filedialog.askopenfilename(title="Select vdc executable")
+    #     if filepath:
+    #         self.path_entry.delete(0, tk.END)
+    #         self.path_entry.insert(0, filepath) 
 
     def save_config(self):
         """Save VDC configuration"""
@@ -102,6 +108,7 @@ class VisuaVDC:
         except Exception as e:
             print(f"Error saving VDC config: {e}")
 
+ 
     def load_config(self):
         """Load VDC configuration"""
         try:
@@ -287,13 +294,7 @@ class VisuaVDC:
     #     # Save configuration
     #     self.save_config()
 
-    def save_config(self):
-        """Save VDC configuration"""
-        try:
-            with open(os.path.join(self.tmp_path, "config_vdc.txt"), "w") as f:
-                f.write(self.path_entry.get() + "\n")
-        except Exception as e:
-            print(f"Error saving VDC config: {e}")
+   
 
 
     def create_vesta_section(self):
@@ -446,13 +447,6 @@ class VisuaVDC:
             messagebox.showerror("Error", f"File not found: {png_file}")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to view PNG: {str(e)}")
-
- #--------------------------         
-    def browse_vdc(self):
-        filepath = filedialog.askopenfilename(title="Select vdc executable")
-        if filepath:
-            self.path_entry.delete(0, tk.END)
-            self.path_entry.insert(0, filepath)    
 
  #--------------------------        
     def insert_png(self):

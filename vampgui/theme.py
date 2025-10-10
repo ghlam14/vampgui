@@ -1,12 +1,9 @@
-import re
-import os
 import tkinter as tk
-from tkinter import filedialog
-from tkinter import scrolledtext, messagebox, ttk
+from tkinter import  ttk
 from vampgui.file_io import InputFileViewer
 from vampgui.helpkey import show_help
 from vampgui.version import __version__
-
+from home_page import MainInputTab
 
 def apply_night_theme(root):
     style = ttk.Style()

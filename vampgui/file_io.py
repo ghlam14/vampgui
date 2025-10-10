@@ -42,7 +42,7 @@ class InputFileViewer:
 
     def apply_tags(self):
         # Get the content of the text widget
-        content = self.text_widget.get("1.0", "end")
+        self.text_widget.get("1.0", "end")
 
         # Clear previous tags
         self.text_widget.tag_remove("bold_italic", "1.0", "end")

@@ -1,53 +1,75 @@
 Metadata-Version: 2.1
 Name: vampgui
-Version: 2.1.1
+Version: 2.2.3
 Summary: Interface graphic to vampire "Atomistic simulation of magnetic materials"
-Home-page: https://github.com/ghlam14
+Home-page: https://github.com/ghlam14/vampgui
 Author: G. Benabdellah
 Author-email: ghlam.benabdellah@gmail.com
-License: UNKNOWN
-Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
 Classifier: Operating System :: OS Independent
-Requires-Python: >=3.6
+Requires-Python: >=3.10
 Description-Content-Type: text/markdown
 
-Interface to Vampire 6: 
-https://vampire.york.ac.uk/
+# VAMPgui – Interface to VAMPIRE 7
 
-The VAMPgui is written using Python 3 code based on 'tkinter'. The GUI has been tested on the Linux platform (Ubuntu 20.04).
+**VAMPgui** is a graphical user interface written in Python 3 using the `tkinter` library. It is designed to simplify the use of the VAMPIRE
+atomistic spin dynamics code [VAMPIRE - Atomistic Spin Dynamics](https://vampire.york.ac.uk/). The GUI has been tested on Linux systems including **Ubuntu 20.04** and **Ubuntu 24.04**.
 
- To install command:
-
-       pip3 install vampgui
-
-  To run the GUI, open a terminal in the working directory and execute:
-
-       vampgui
-       
-![image](https://github.com/ghlam14/vampgui_bin/assets/103369846/eb864efd-483a-4fe3-a406-8ba8a9b432c9)
+ ![image](https://github.com/user-attachments/assets/aed9a5ad-e365-40c0-9c17-a5e741b8aa2b)
 
 
-I hope this message finds you well and enjoying the features of my GUI based on the Vampire 6 code manual. I wanted to take a moment to express my gratitude for your support and to address a matter of importance. 
-As a developer, I'm committed to providing you with the best possible user experience. However, I must acknowledge that my experience with the Vampire 6 code is still in its early stages. 
-While I've done my best to implement the functionalities outlined in the manual, there may be limitations or areas where my GUI falls short due to my current level of expertise.
-I believe in transparency and honesty, which is why I want to be upfront about these limitations. Rest assured, I'm actively working to improve my understanding of the Vampire 6 code and enhance the capabilities of my GUI. 
-But to truly make meaningful progress, I need your help.
+## 📦 Installation
 
-Your feedback is invaluable to me. Whether you've encountered bugs, identified areas for improvement, or have suggestions for new features, I want to hear from you. Your input will guide my development efforts and ensure that future updates to the GUI align with your needs and expectations.
-Please don't hesitate to reach out to me with your feedback, questions, or concerns. You can contact me directly at email address.
-I'm grateful for your continued support and understanding as I work to make my GUI the best it can be. Together, we can build a product that meets the needs of our users and exceeds expectations.
+## Using `pip` (recommended for most users)
 
-Warm regards,
+        pip3 install vampgui
 
- Author: G. Benabdellah
- 
-Departement of physic
+## Using pipx (recommended on Ubuntu 24.04)
 
-University of Tiaret , Algeria
+        pipx install vampgui
 
-E-mail ghlam.benabdellah@gmail.com
+## 🚀 Running the GUI
+To launch the graphical interface, open a terminal in your working directory and run:
+
+        vampgui
 
 
+## 🛠 Features
+        -Prepare input files for VAMPIRE simulations.
 
+        -Run the VAMPIRE code directly from the GUI.
+
+        -Plot results from simulation output.
+
+        - visualization 
+
+## required packages:
+if the "tkinter" is not installed. Please install it to use this package.
+
+
+For  Debian-based systems, run:
+
+                sudo apt-get install python3-tk
+
+For Red Hat-based systems, run:
+
+                sudo dnf install python3-tkinter
+
+
+![image](https://github.com/user-attachments/assets/3466db92-f74f-4c6a-8f2f-169d784dd4c8)
+
+
+## Experimental feature: 
+**Convert CIF files to .ufc format using pymatgen (under testing and improvement).**
+
+![image](https://github.com/user-attachments/assets/4d818347-63cc-49e1-9ec5-c92c2d8ca328)
+
+
+## 🐞 Feedback & Contact
+If you find any bugs or have suggestions, please send your feedback via email:
+
+Author: G. Benabdellah
+Department of Physics
+University of Tiaret, Algeria
+Email: ghlam.benabdellah@gmail.com

@@ -283,7 +283,7 @@ class VampireInput:
 
         with open("input", mode="w") as file:
             file.write(input_script)
-        logging.info( f" Standard input file (with program = curie-temperature) are created : input ")
+        logging.info( " Standard input file (with program = curie-temperature) are created : input ")
         logging.info(input_script)
 
     def _create_ucf(self):

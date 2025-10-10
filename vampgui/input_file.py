@@ -35,24 +35,18 @@ from tkinter import ttk
 from vampgui.file_io import   InputFileViewer
 from vampgui.helpkey import  show_help
 from vampgui.version import __version__
-from tkinter import scrolledtext, messagebox
 from tkinter import filedialog
 import re
-import os
 
 class InputTab:
     def __init__(self, tab):
-
         canvas, frame = self._canvas(tab)
         self.input_v = "input_v"
         self._button_frame(frame)
         self.__create_onglet__(frame)
 
-     
 
-
-
-
+        
 #==========================
     def _canvas(self,tab):
         # Create a canvas
@@ -514,7 +508,11 @@ class InputTab:
 
 #============================================
     def load_file(self):
-        file_path = filedialog.askopenfilename(title="Select file", filetypes=[("input files", "*"), ("All files", "*.*")])
+        file_path = filedialog.askopenfilename(title="Select file",
+                                               filetypes=[("input files", "input"),
+                                                          ("input files", "input_v"), 
+                                                          ("All files", "*.*"), 
+                                                          ("All files", "*")])
         if file_path:
             self.load_input_values(file_path)      
 #=============================================
@@ -535,9 +533,7 @@ class InputTab:
                 file.write("#   Input file  for Vampire v-7 \n")
                 file.write(f"#     File created  by vampgui {__version__}\n")
                 file.write("#"+"+" * 42 +"#"+"\n\n")
-
-                current_keyword = None
-
+                
                 # Group entries by keyword
                 keyword_groups = {}
                 for keyword, entries in self.user_input:

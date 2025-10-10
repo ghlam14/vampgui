@@ -1,3 +1,35 @@
+# -*- coding: utf-8 -*-
+#
+# copyright (c) 06-2024 G. Benabdellah
+# Departement of physic
+# University of Tiaret , Algeria
+# E-mail ghlam.benabdellah@gmail.com
+#
+# this program is part of VAMgui 
+# first creation 28-05-2024
+#  
+#
+# License: GNU General Public License v3.0
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+#  log change:
+#
+#
+# Vampire input:  kyeword:subkeyword = value
+
+
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import logging
@@ -12,38 +44,52 @@ class cif_2_ucf:
     def __init__(self, tab):
         def configure_scroll_region(event):
             canvas.configure(scrollregion=canvas.bbox("all"))
-# Create a canvas
+        # Create a canvas
         canvas = tk.Canvas(tab)
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-# Add a frame inside the canvas
+        # Add a frame inside the canvas
         frame = tk.Frame(canvas)
         canvas.create_window((0, 0), window=frame, anchor=tk.NW)
-# Add a vertical scrollbar to the canvas
-        v_scrollbar = tk.Scrollbar(tab, orient=tk.VERTICAL, command=canvas.yview, bg='black')
+        # Add a vertical scrollbar to the canvas
+        v_scrollbar = tk.Scrollbar(
+            tab, 
+            orient=tk.VERTICAL, 
+            command=canvas.yview, 
+            bg='black')
         v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         canvas.config(yscrollcommand=v_scrollbar.set)
-# Add a horizontal scrollbar to the canvas
-        h_scrollbar = tk.Scrollbar(tab, orient=tk.HORIZONTAL, command=canvas.xview, bg='black')
+        # Add a horizontal scrollbar to the canvas
+        h_scrollbar = tk.Scrollbar(tab, 
+                                   orient=tk.HORIZONTAL, 
+                                   command=canvas.xview, 
+                                   bg='black')
         h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
         canvas.config(xscrollcommand=h_scrollbar.set)
-# Bind the canvas scrolling to the mouse wheel
-        canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(-1 * int(event.delta / 120), "units"))
-        canvas.bind_all("<Shift-MouseWheel>", lambda event: canvas.xview_scroll(-1 * int(event.delta / 120), "units"))
-# Bind a function to adjust the canvas scroll region when the frame size changes
+        # Bind the canvas scrolling to the mouse wheel
+        canvas.bind_all("<MouseWheel>", 
+                        lambda event: canvas.yview_scroll(-1 * int(event.delta / 120), "units"))
+        canvas.bind_all("<Shift-MouseWheel>", 
+                        lambda event: canvas.xview_scroll(-1 * int(event.delta / 120), "units"))
+        # Bind a function to adjust the canvas scroll region when the frame size changes
         frame.bind("<Configure>", configure_scroll_region)
-# Frame for buttons
+        # Frame for buttons
         button_frame = tk.Frame(frame)
         button_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
         #tk.Button(button_frame, bg='cyan', text="Save UCF File", command=self.generate_ucf_file).grid(row=0, column=0, padx=5, pady=5,sticky="w")
-        tk.Button(button_frame, bg='#ffff99', text="View/Edit sample.ucf", command=self.open_sample_file).grid(row=0, column=3,padx=5, pady=5,sticky="w")
-
-        tk.Button(button_frame,  text="help", command=lambda kw="ufc_file": show_help(kw)).grid(row=0, column=5,padx=5, pady=25,sticky="w")
-
+        tk.Button(button_frame, 
+                  bg='#ffff99', 
+                  text="View/Edit sample.ucf", 
+                  command=self.open_sample_file
+                  ).grid(row=0, column=3,padx=5, pady=5,sticky="w")
+        tk.Button(
+            button_frame,  
+            text="help", 
+            command=lambda kw="ufc_file": show_help(kw)
+            ).grid(row=0, column=5,padx=5, pady=25,sticky="w")
 
         self.mode = tk.LabelFrame(frame, text="Create ucf from cif file: (note: this interface is still under test ..) ", font=("Helvetica", 14, "bold"))
         self.mode.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=(8, 8))
         # Filename
-
 
         # CIF file selection
         self.cif_label = tk.Label(self.mode, text="CIF File:")
@@ -201,7 +247,7 @@ class cif_2_ucf:
 
             # Create antiferromagnetic configuration
             for i in range(len(self.structure)):
-                self.structure[i].properties['magmom'] *= (-1) if i % 2 == 1 else 1  # Flip spins for alternating sites
+                self.structure[i].properties['magmom'] *= (-1) if i % 2 == 1 else 1  
 
             analyzer_antiferro = CollinearMagneticStructureAnalyzer(self.structure)
             ordered_structure_antiferro = analyzer_antiferro.get_structure_with_spin()
@@ -209,10 +255,7 @@ class cif_2_ucf:
             # Initialize VampireCaller with the two ordered structures and corresponding energies
             ordered_structures = [ordered_structure_ferro, ordered_structure_antiferro]
             energies = [energy_ferro, energy_antiferro]
-            vc = VampireInput(ordered_structures, energies=energies)
-
-
-
+            VampireInput(ordered_structures, energies=energies)
 
 
             messagebox.showinfo("Success", "Vampire input generated successfully")

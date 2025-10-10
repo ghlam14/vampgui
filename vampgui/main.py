@@ -36,7 +36,7 @@ import tkinter as tk
 from vampgui.home_page import VampireInputApp
 def main():
     root = tk.Tk()
-    app = VampireInputApp(root)
+    VampireInputApp(root)
     root.mainloop()
 
 if __name__ == "__main__":

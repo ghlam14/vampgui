@@ -33,7 +33,7 @@ import re
 import os
 import tkinter as tk
 from tkinter import filedialog
-from tkinter import scrolledtext, messagebox,ttk
+from tkinter import messagebox,ttk
 from vampgui.file_io import InputFileViewer 
 from vampgui.helpkey import  show_help
 from vampgui.version import __version__
@@ -190,11 +190,15 @@ class MainInputTab:
 
             tk.Button(frame, text="?", command=lambda kw=mat_suffix: show_help(kw)) \
                 .grid(row=row, column=ncol+3, padx=1, sticky="w")
-
+            
             if mat_suffix in indexed_suffixes:
                 tk.Button(
                     frame,
                     text="+",
+                    bg="#66CCFF",          # light blue background
+                    fg="black",            # white text
+                    activebackground="#3399FF",  # darker blue when clicked
+                    activeforeground="white",
                     command=lambda skw=mat_suffix: self.add_indexed_suffix(frame, skw)
                 ).grid(row=row, column=ncol+3, padx=35, sticky="e")
 
@@ -266,7 +270,7 @@ class MainInputTab:
     def set_color_selected_prefix(self, subkeyword, var, check):
         if var.get():
             self.set_checkbox_color(check, 'blue')
-            sub_key=subkeyword.strip().strip("=").strip() 
+            # sub_key=subkeyword.strip().strip("=").strip() 
         else:
             self.set_checkbox_color(check, 'black')
 #==========================
@@ -428,7 +432,10 @@ class MainInputTab:
 
 #============================================
     def load_file(self):
-        file_path = filedialog.askopenfilename(title="Select file", filetypes=[("input files", "*"), ("All files", "*.*")])
+        file_path = filedialog.askopenfilename(title="Select file", 
+                                               filetypes=[("input files", "*.mat"), 
+                                                          ("All files", "*.*"), 
+                                                          ("All files", "*")])
         if file_path:
             self.load_input_values(file_path)
 #=============================================    
